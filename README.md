@@ -1,6 +1,6 @@
 # AI Assistant Manager
 
-This is a repository to manage OpenAI Assistants.
+This repository provides tools and services to manage OpenAI Assistants, including creating, listing, and deleting assistants, as well as handling vector stores and retrieval files. It includes end-to-end and unit tests, and leverages the Hatch build system for environment management and testing.
 
 ## Setup
 
