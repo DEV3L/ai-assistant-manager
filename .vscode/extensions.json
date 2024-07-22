@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "anysphere.pyright",
+    "charliermarsh.ruff",
+    "github.copilot-chat",
+    "github.copilot",
+    "github.vscode-github-actions",
+    "ms-python.debugpy",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ryanluker.vscode-coverage-gutters",
+    "streetsidesoftware.code-spell-checker",
+    "tamasfe.even-better-toml",
+    "yzhang.markdown-all-in-one"
+  ]
+}
