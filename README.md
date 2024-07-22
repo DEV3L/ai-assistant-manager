@@ -27,22 +27,20 @@ hatch shell
 
 ## Testing
 
+### End to End Test
+
+```bash
+hatch run build
+```
+
 ### Unit Tests
 
 ```bash
-pytest
+hatch run test
 ```
 
-With coverage:
+Coverage Gutters:
 
 ```bash
-pytest --cov
-```
-
-With coverage for Coverage Gutters:
-
-```bash
-pytest --cov --cov-report lcov
-
 Command + Shift + P => Coverage Gutters: Watch
 ```

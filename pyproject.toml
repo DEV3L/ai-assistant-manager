@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "open-ai-assistant"
+name = "ai-assistant-manager"
 dynamic = ["version"]
 description = "This is a repository to manage OpenAI Assistants."
 license = { file = "LICENSE" }
@@ -18,9 +18,11 @@ pattern = "version = (?P<version>\\S+)"
 
 [tool.hatch.build.targets.sdist]
 include = ["/src"]
+artifact = { name = "ai-assistant-manager" }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
+artifact = { name = "ai-assistant-manager" }
 
 [tool.hatch.envs.default]
 type = "virtual"
@@ -28,6 +30,7 @@ path = ".venv"
 dependencies = ["pyright", "pytest", "pytest-cov"]
 
 [tool.hatch.envs.default.scripts]
+build = "python run_build.py"
 test = "pytest --cache-clear --cov --cov-report lcov --cov-report term"
 
 [tool.hatch.envs.hatch-static-analysis]
