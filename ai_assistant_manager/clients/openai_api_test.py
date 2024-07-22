@@ -1,10 +1,10 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from src.clients.openai_api import OpenAIClient, build_openai_client
+from ai_assistant_manager.clients.openai_api import OpenAIClient, build_openai_client
 
 
-@patch("src.clients.openai_api.OpenAI")
+@patch("ai_assistant_manager.clients.openai_api.OpenAI")
 def test_build_openai_client(mock_openai):
     client = build_openai_client()
 
@@ -145,7 +145,7 @@ class TestOpenAIClient(TestCase):
         self.mock_open_ai.beta.vector_stores.retrieve.assert_called_once_with(vector_store_id)
         assert vector_store == self.mock_open_ai.beta.vector_stores.retrieve.return_value
 
-    @patch("src.clients.openai_api.time")
+    @patch("ai_assistant_manager.clients.openai_api.time")
     def test_vector_stores_create(self, mock_time):
         file_ids = ["file_id"]
         name = "vector_store_name"
@@ -160,7 +160,7 @@ class TestOpenAIClient(TestCase):
         assert vector_store_id == self.mock_open_ai.beta.vector_stores.create.return_value.id
         assert mock_time.sleep.call_count == 1
 
-    @patch("src.clients.openai_api.logger")
+    @patch("ai_assistant_manager.clients.openai_api.logger")
     def test_vector_stores_create_with_failed_files(self, mock_logger):
         file_ids = ["file_id"]
         name = "vector_store_name"
@@ -173,8 +173,8 @@ class TestOpenAIClient(TestCase):
         self.mock_open_ai.beta.vector_stores.create.assert_called_once_with(name=name, file_ids=file_ids)
         assert mock_logger.warning.call_count == 1
 
-    @patch("src.clients.openai_api.time")
-    @patch("src.clients.openai_api.logger")
+    @patch("ai_assistant_manager.clients.openai_api.time")
+    @patch("ai_assistant_manager.clients.openai_api.logger")
     def test_vector_stores_update(self, mock_logger, mock_time):
         expected_vector_store_id = "vector_store_id"
         file_ids = ["file_id"]

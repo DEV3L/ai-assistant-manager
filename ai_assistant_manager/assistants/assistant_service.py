@@ -2,7 +2,7 @@ import os
 
 from loguru import logger
 
-from src.clients.openai_api import OpenAIClient
+from ai_assistant_manager.clients.openai_api import OpenAIClient
 
 ASSISTANT_DESCRIPTION = "A helpful assistant"
 

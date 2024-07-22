@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from src.timer.timer import timer
+from ai_assistant_manager.timer.timer import timer
 
 
 def test_timer_decorator():
@@ -8,7 +8,7 @@ def test_timer_decorator():
     def dummy_function():
         pass
 
-    with patch("src.timer.timer.logger") as mock_logger:
+    with patch("ai_assistant_manager.timer.timer.logger") as mock_logger:
         dummy_function()
 
     mock_logger.debug.assert_called_once()

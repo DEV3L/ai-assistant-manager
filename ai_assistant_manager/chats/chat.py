@@ -2,8 +2,8 @@ import time
 
 from loguru import logger
 
-from src.clients.openai_api import OpenAIClient
-from src.timer.timer import timer
+from ai_assistant_manager.clients.openai_api import OpenAIClient
+from ai_assistant_manager.timer.timer import timer
 
 START_MESSAGE = "hello"
 TOOL_CALL_PREFIX = "tc!"

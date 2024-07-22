@@ -1,4 +1,4 @@
-# OpenAI Assistant
+# AI Assistant Manager
 
 This is a repository to manage OpenAI Assistants.
 
@@ -30,7 +30,7 @@ hatch shell
 ### End to End Test
 
 ```bash
-hatch run build
+hatch run end-to-end
 ```
 
 ### Unit Tests

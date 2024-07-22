@@ -1,7 +1,7 @@
 from unittest import TestCase, mock
 from unittest.mock import MagicMock, mock_open, patch
 
-from src.assistants.assistant_service import AssistantService
+from ai_assistant_manager.assistants.assistant_service import AssistantService
 
 
 class TestAssistantService(TestCase):

@@ -17,11 +17,11 @@ path = "setup.cfg"
 pattern = "version = (?P<version>\\S+)"
 
 [tool.hatch.build.targets.sdist]
-include = ["/src"]
+include = ["/ai_assistant_manager"]
 artifact = { name = "ai-assistant-manager" }
 
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
+packages = ["ai_assistant_manager"]
 artifact = { name = "ai-assistant-manager" }
 
 [tool.hatch.envs.default]
@@ -30,7 +30,7 @@ path = ".venv"
 dependencies = ["pyright", "pytest", "pytest-cov"]
 
 [tool.hatch.envs.default.scripts]
-build = "python run_build.py"
+build = "python run_end_to_end.py"
 test = "pytest --cache-clear --cov --cov-report lcov --cov-report term"
 
 [tool.hatch.envs.hatch-static-analysis]

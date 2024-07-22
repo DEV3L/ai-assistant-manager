@@ -1,9 +1,9 @@
 from loguru import logger
 
-from src.assistants.assistant_service import (
+from ai_assistant_manager.assistants.assistant_service import (
     AssistantService,
 )
-from src.clients.openai_api import OpenAIClient, build_openai_client
+from ai_assistant_manager.clients.openai_api import OpenAIClient, build_openai_client
 
 
 def main():

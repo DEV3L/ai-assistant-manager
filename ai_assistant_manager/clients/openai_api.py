@@ -5,7 +5,7 @@ from typing import Literal
 from loguru import logger
 from openai import OpenAI
 
-from src.timer.timer import timer
+from ai_assistant_manager.timer.timer import timer
 
 OPENAI_MODEL = "gpt-4o"
 
