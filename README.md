@@ -2,6 +2,14 @@
 
 This repository provides tools and services to manage OpenAI Assistants, including creating, listing, and deleting assistants, as well as handling vector stores and retrieval files. It includes end-to-end and unit tests, and leverages the Hatch build system for environment management and testing.
 
+## Install through PyPI
+
+```bash
+pip install ai-assistant-manager
+```
+
+For more details, visit the [PyPI project page](https://pypi.org/project/ai-assistant-manager/).
+
 ## Setup
 
 1. Clone the repository:
