@@ -2,22 +2,21 @@ from unittest import TestCase, mock
 from unittest.mock import MagicMock, mock_open, patch
 
 from ai_assistant_manager.assistants.assistant_service import AssistantService
+from ai_assistant_manager.env_variables import ASSISTANT_NAME, DATA_FILE_PREFIX
 
 
 class TestAssistantService(TestCase):
     service: AssistantService
-    assistant_name = "Test Assistant"
     prompt = "A helpful assistant"
-    data_file_prefix = "test"
 
     def setUp(self):
         self.mock_client = MagicMock()
 
-        self.service = AssistantService(self.mock_client, self.prompt, self.data_file_prefix, self.assistant_name)
+        self.service = AssistantService(self.mock_client, self.prompt)
 
     def test_get_assistant_id_exists(self):
         mock_assistant = MagicMock(id="456")
-        mock_assistant.name = self.assistant_name
+        mock_assistant.name = ASSISTANT_NAME
         self.mock_client.assistants_list = MagicMock(
             return_value=[
                 mock_assistant,
@@ -40,7 +39,7 @@ class TestAssistantService(TestCase):
     def test_get_vector_store_ids_exists(self):
         self.mock_client.vector_stores_list = MagicMock(
             return_value=[
-                MagicMock(filename=f"{self.data_file_prefix} vector store", id="654"),
+                MagicMock(filename=f"{DATA_FILE_PREFIX} vector store", id="654"),
             ]
         )
 
@@ -102,7 +101,7 @@ class TestAssistantService(TestCase):
     def test_get_retrieval_file_ids_exists(self):
         self.mock_client.files_list = MagicMock(
             return_value=[
-                MagicMock(filename=f"{self.data_file_prefix} blogs.json", id="456"),
+                MagicMock(filename=f"{DATA_FILE_PREFIX} blogs.json", id="456"),
             ]
         )
 
