@@ -10,7 +10,10 @@ license = { file = "LICENSE" }
 readme = "README.md"
 authors = [{ name = "Justin Beall", email = "jus.beall@gmail.com" }]
 requires-python = ">=3.11"
-dependencies = ["loguru", "openai", "python-dotenv"]
+dependencies = ["loguru", "openai", "python-dotenv", "twine"]
+
+[project.urls]
+repository = "https://github.com/DEV3L/open-ai-assistant"
 
 [tool.hatch.version]
 path = "setup.cfg"

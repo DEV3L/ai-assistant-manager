@@ -5,9 +5,8 @@ from typing import Literal
 from loguru import logger
 from openai import OpenAI
 
+from ai_assistant_manager.env_variables import OPENAI_MODEL
 from ai_assistant_manager.timer.timer import timer
-
-OPENAI_MODEL = "gpt-4o"
 
 RETRIEVAL_TOOLS = [
     {"type": "file_search"},
