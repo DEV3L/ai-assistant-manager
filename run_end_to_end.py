@@ -12,7 +12,6 @@ def main():
     FilesExporter("about.txt").export()
 
     assistant_name = "AI-Assistant-Manager-Test"
-
     logger.info(f"Building {assistant_name}")
 
     client = OpenAIClient(build_openai_client())
@@ -22,7 +21,6 @@ def main():
     service.delete_assistant()
 
     assistant_id = service.get_assistant_id()
-
     logger.info(f"Assistant ID: {assistant_id}")
 
     chat = Chat(client, assistant_id)

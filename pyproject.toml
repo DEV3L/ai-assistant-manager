@@ -11,6 +11,32 @@ readme = "README.md"
 authors = [{ name = "Justin Beall", email = "jus.beall@gmail.com" }]
 requires-python = ">=3.11"
 dependencies = ["loguru", "openai", "python-dotenv", "twine"]
+keywords = [
+    "openai",
+    "assistant",
+    "management",
+    "AI",
+    "vector store",
+    "machine learning",
+    "natural language processing",
+    "NLP",
+    "chatbot",
+    "automation",
+    "python",
+    "API",
+    "deep learning",
+    "artificial intelligence",
+    "data science",
+]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 
 [project.urls]
 repository = "https://github.com/DEV3L/open-ai-assistant"
@@ -35,6 +61,7 @@ dependencies = ["pyright", "pytest", "pytest-cov"]
 [tool.hatch.envs.default.scripts]
 e2e = "python run_end_to_end.py"
 test = "pytest --cache-clear --cov --cov-report lcov --cov-report term"
+publish = "rm -rf bin && rm -rf dist && hatch build && twine upload dist/*"
 
 [tool.hatch.envs.hatch-static-analysis]
 config-path = "ruff_defaults.toml"
