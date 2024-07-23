@@ -213,7 +213,6 @@ class OpenAIClient:
             logger.info("Waiting for vector store to be ready")
             time.sleep(5)
 
-        # Log a warning if any files failed to upload to the vector store
         if vector_store.file_counts.failed > 0:
             logger.warning(
                 f"Some files ({vector_store.file_counts.failed}) failed when uploaded to vector store ({vector_store_id})"
@@ -238,7 +237,6 @@ class OpenAIClient:
             logger.info("Waiting for vector store to be ready")
             time.sleep(5)
 
-        # Log a warning if any files failed to upload to the vector store
         if vector_store.file_counts.failed > 0:
             logger.warning(
                 f"Some files ({vector_store.file_counts.failed}) failed when uploaded to vector store ({vector_store_id})"

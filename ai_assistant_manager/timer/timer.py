@@ -5,6 +5,13 @@ from loguru import logger
 
 
 def timer(message: str):
+    """
+    Decorator to measure the execution time of a function and log it.
+
+    :param message: The message to include in the log.
+    :return: The decorator function.
+    """
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):

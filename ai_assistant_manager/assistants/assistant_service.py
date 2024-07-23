@@ -5,6 +5,10 @@ from loguru import logger
 from ai_assistant_manager.clients.openai_api import OpenAIClient
 from ai_assistant_manager.env_variables import ASSISTANT_NAME, DATA_FILE_PREFIX
 
+RETRIEVAL_TOOLS = [
+    {"type": "file_search"},
+]
+
 
 class AssistantService:
     """
@@ -20,6 +24,7 @@ class AssistantService:
         *,
         assistant_name: str = ASSISTANT_NAME,
         data_file_prefix: str = DATA_FILE_PREFIX,
+        tools: list[dict] = RETRIEVAL_TOOLS,
     ):
         """
         Initialize the AssistantService with a client, prompt, assistant name, and data file prefix.
@@ -28,11 +33,13 @@ class AssistantService:
         :param prompt: The prompt to be used for the assistant.
         :param assistant_name: The name of the assistant (default is from environment variables).
         :param data_file_prefix: The prefix for data files (default is from environment variables).
+        :param tools: The tools to be used by the assistant.
         """
         self.client = client
         self.prompt = prompt
         self.data_file_prefix = data_file_prefix
         self.assistant_name = assistant_name
+        self.tools = tools
 
     def get_assistant_id(self):
         """
@@ -40,7 +47,6 @@ class AssistantService:
 
         :return: The ID of the assistant.
         """
-        # Try to find an existing assistant; if not found, create a new one
         return self._find_existing_assistant() or self._create_assistant()
 
     def _find_existing_assistant(self):
@@ -49,7 +55,6 @@ class AssistantService:
 
         :return: The ID of the existing assistant or None if not found.
         """
-        # Fetch the list of assistants and return the ID of the one that matches the assistant name
         assistants = self.client.assistants_list()
         return next(
             (assistant.id for assistant in assistants if assistant.name == self.assistant_name),
@@ -62,9 +67,10 @@ class AssistantService:
 
         :return: The ID of the newly created assistant.
         """
-        # Log the creation of a new assistant and create it using the client
         logger.info(f"Creating new assistant {self.assistant_name}")
-        return self.client.assistants_create(self.assistant_name, self.prompt, self.get_vector_store_ids()).id
+        return self.client.assistants_create(
+            self.assistant_name, self.prompt, self.get_vector_store_ids(), tools=self.tools
+        ).id
 
     def get_vector_store_ids(self):
         """
@@ -72,7 +78,6 @@ class AssistantService:
 
         :return: A list of vector store IDs.
         """
-        # Try to find existing vector stores; if not found, create new ones
         return self._find_existing_vector_stores() or self.create_vector_stores()
 
     def _find_existing_vector_stores(self):
@@ -81,7 +86,6 @@ class AssistantService:
 
         :return: A list of existing vector store IDs.
         """
-        # Fetch the list of vector stores and return the IDs of those that match the data file prefix
         vector_stores = self.client.vector_stores_list()
         return [
             vector_store.id
@@ -95,7 +99,6 @@ class AssistantService:
 
         :return: A list containing the ID of the newly created vector store.
         """
-        # Log the creation of new vector stores and create them using the client
         logger.info("Creating new vector stores")
         retrieval_file_ids = self.get_retrieval_file_ids()
         return [
@@ -112,14 +115,13 @@ class AssistantService:
         :return: The validated vector store ID.
         """
         try:
-            # Fetch the files in the vector store and identify any that have failed
             vector_store_files = self.client.vector_stores_files(vector_store_id)
             failed_files = [file.id for file in vector_store_files if file.status == "failed"]
 
             if not failed_files:
                 return vector_store_id
 
-            # Fetch the failed files and their names
+            # Retrieve details of failed files
             failed_retrieval_files = [self.client.files_get(file) for file in failed_files if file]
             failed_retrieval_file_names = [self._get_file_name(file.filename) for file in failed_retrieval_files]
             failed_file_paths = [
@@ -128,17 +130,16 @@ class AssistantService:
                 if self._get_file_name(file_path) in failed_retrieval_file_names
             ]
 
-            # Delete failed files from the vector store
+            # Delete failed files from vector store
             [self.client.vector_stores_file_delete(vector_store_id, file_id) for file_id in failed_files]
 
-            # Recreate the failed files and update the vector store
+            # Recreate failed files
             recreated_files = self._create_files(failed_file_paths)
             self.client.vector_stores_update(vector_store_id, recreated_files)
 
-            # Recursively validate the vector store again to ensure all files are correct
+            # Recursively validate the vector store again
             return self._validate_vector_stores(vector_store_id)
         except Exception as e:
-            # Log any errors encountered during validation and retry validation
             logger.error(f"Error validating vector store {vector_store_id}: {e}")
             return self._validate_vector_stores(vector_store_id)
 
@@ -149,7 +150,6 @@ class AssistantService:
         :param file_path: The path of the file.
         :return: The name of the file.
         """
-        # Use os.path.basename to extract the file name from the file path
         return os.path.basename(file_path)
 
     def get_retrieval_file_ids(self):
@@ -158,7 +158,6 @@ class AssistantService:
 
         :return: A list of retrieval file IDs.
         """
-        # Try to find existing retrieval files; if not found, create new ones
         return self._find_existing_retrieval_files() or self.create_retrieval_files()
 
     def _find_existing_retrieval_files(self):
@@ -167,7 +166,6 @@ class AssistantService:
 
         :return: A list of existing retrieval file IDs.
         """
-        # Fetch the list of files and return the IDs of those that match the data file prefix
         files = self.client.files_list()
         return [file.id for file in files if file.filename.startswith(self.data_file_prefix)]
 
@@ -177,7 +175,6 @@ class AssistantService:
 
         :return: A list of newly created retrieval file IDs.
         """
-        # Log the creation of new retrieval files and create them using the client
         logger.info("Creating new retrieval files")
         file_paths = self._get_file_paths()
         return self._create_files(file_paths)
@@ -188,7 +185,6 @@ class AssistantService:
 
         :return: A list of file paths.
         """
-        # Walk through the "bin" directory and collect all file paths, excluding ".DS_Store" files
         return [
             os.path.join(root, file)
             for (root, _, files) in os.walk("bin")
@@ -203,7 +199,6 @@ class AssistantService:
         :param file_paths: A list of file paths to create files from.
         :return: A list of newly created file IDs.
         """
-        # Create files for each file path using the client
         return [self._create_file(file_path) for file_path in file_paths]
 
     def _create_file(self, file_path: str):
@@ -213,7 +208,6 @@ class AssistantService:
         :param file_path: The path of the file to create.
         :return: The ID of the newly created file.
         """
-        # Open the file in binary mode and create it using the client
         with open(file_path, "rb") as file:
             return self.client.files_create(file, "assistants").id
 
@@ -223,7 +217,6 @@ class AssistantService:
 
         This method ensures that all resources related to the assistant are cleaned up.
         """
-        # Log the removal of the assistant and its associated files, then delete them using the client
         logger.info(f"Removing existing {self.assistant_name} and retrieval files")
 
         if assistant_id := self._find_existing_assistant():
