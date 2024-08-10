@@ -5,7 +5,7 @@ from typing import Literal
 from loguru import logger
 from openai import OpenAI
 
-from ai_assistant_manager.env_variables import OPENAI_MODEL
+from ai_assistant_manager.env_variables import ENV_VARIABLES
 from ai_assistant_manager.timer.timer import timer
 
 
@@ -24,14 +24,14 @@ class OpenAIClient:
     messages, runs, assistants, files, and vector stores.
     """
 
-    def __init__(self, open_ai: OpenAI, *, open_ai_model: str = OPENAI_MODEL):
+    def __init__(self, open_ai: OpenAI, *, open_ai_model: str | None = None):
         """
         Initialize the OpenAIClient with an OpenAI instance.
 
         :param open_ai: An instance of the OpenAI client.
         """
         self.open_ai = open_ai
-        self.open_ai_model = open_ai_model
+        self.open_ai_model = open_ai_model if open_ai_model else ENV_VARIABLES.openai_model
 
     @timer("OpenAIClient.threads_create")
     def threads_create(self):

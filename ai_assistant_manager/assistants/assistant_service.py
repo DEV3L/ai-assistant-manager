@@ -3,7 +3,7 @@ import os
 from loguru import logger
 
 from ai_assistant_manager.clients.openai_api import OpenAIClient
-from ai_assistant_manager.env_variables import ASSISTANT_NAME, DATA_FILE_PREFIX
+from ai_assistant_manager.env_variables import ENV_VARIABLES
 
 RETRIEVAL_TOOLS = [
     {"type": "file_search"},
@@ -22,8 +22,8 @@ class AssistantService:
         client: OpenAIClient,
         prompt: str,
         *,
-        assistant_name: str = ASSISTANT_NAME,
-        data_file_prefix: str = DATA_FILE_PREFIX,
+        assistant_name: str | None = None,
+        data_file_prefix: str | None = None,
         tools: list[dict] = RETRIEVAL_TOOLS,
     ):
         """
@@ -35,10 +35,11 @@ class AssistantService:
         :param data_file_prefix: The prefix for data files (default is from environment variables).
         :param tools: The tools to be used by the assistant.
         """
+
         self.client = client
         self.prompt = prompt
-        self.data_file_prefix = data_file_prefix
-        self.assistant_name = assistant_name
+        self.assistant_name = assistant_name if assistant_name else ENV_VARIABLES.assistant_name
+        self.data_file_prefix = data_file_prefix if data_file_prefix else ENV_VARIABLES.data_file_prefix
         self.tools = tools
 
     def get_assistant_id(self):

@@ -3,7 +3,7 @@ import shutil
 
 from loguru import logger
 
-from ai_assistant_manager.env_variables import BIN_DIR, DATA_DIR, DATA_FILE_PREFIX
+from ai_assistant_manager.env_variables import ENV_VARIABLES
 from ai_assistant_manager.exporters.exporter import (
     create_dir,
     does_data_exist,
@@ -23,9 +23,9 @@ class FilesExporter:
         file_name: str,
         *,
         directory: str = "files",
-        bin_dir: str = BIN_DIR,
-        data_dir: str = DATA_DIR,
-        data_file_prefix: str = DATA_FILE_PREFIX,
+        bin_dir: str | None = None,
+        data_dir: str | None = None,
+        data_file_prefix: str | None = None,
     ) -> None:
         """
         Initialize the FilesExporter with file and directory information.
@@ -36,11 +36,12 @@ class FilesExporter:
         :param data_dir: The base directory for data files (default is from environment variables).
         :param data_file_prefix: The prefix for data files (default is from environment variables).
         """
+
         self.file_name = file_name
         self.directory = directory
-        self.bin_dir = bin_dir
-        self.data_dir = data_dir
-        self.data_file_prefix = data_file_prefix
+        self.bin_dir = bin_dir if bin_dir else ENV_VARIABLES.bin_dir
+        self.data_dir = data_dir if data_dir else ENV_VARIABLES.data_dir
+        self.data_file_prefix = data_file_prefix if data_file_prefix else ENV_VARIABLES.data_file_prefix
 
     def export(self):
         """

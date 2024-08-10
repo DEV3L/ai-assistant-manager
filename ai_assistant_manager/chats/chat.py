@@ -14,10 +14,6 @@ class Chat:
     sending messages, running threads, and retrieving messages.
     """
 
-    client: OpenAIClient
-    assistant_id: str
-    thread_id: str | None
-
     def __init__(
         self,
         client: OpenAIClient,

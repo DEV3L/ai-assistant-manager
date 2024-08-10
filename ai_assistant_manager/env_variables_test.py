@@ -1,6 +1,4 @@
-from dotenv import unset_key
-
-from ai_assistant_manager.env_variables import reset_env_variables
+from ai_assistant_manager.env_variables import ENV_VARIABLES, set_env_variables
 
 
 def test_reset_env_variables(tmp_path):
@@ -16,29 +14,12 @@ def test_reset_env_variables(tmp_path):
     )
 
     # Call the function to reset environment variables
-    reset_env_variables(str(env_file))
-
-    from ai_assistant_manager.env_variables import (
-        ASSISTANT_DESCRIPTION,
-        ASSISTANT_NAME,
-        BIN_DIR,
-        DATA_DIR,
-        DATA_FILE_PREFIX,
-        OPENAI_MODEL,
-    )
+    set_env_variables(str(env_file))
 
     # Assert the environment variables are set correctly
-    assert OPENAI_MODEL == "test_model"
-    assert ASSISTANT_DESCRIPTION == "test_description"
-    assert ASSISTANT_NAME == "test_name"
-    assert BIN_DIR == "test_bin"
-    assert DATA_DIR == "test_data"
-    assert DATA_FILE_PREFIX == "test_prefix"
-
-    # Clean up environment variables
-    unset_key(str(env_file), "OPENAI_MODEL")
-    unset_key(str(env_file), "ASSISTANT_DESCRIPTION")
-    unset_key(str(env_file), "ASSISTANT_NAME")
-    unset_key(str(env_file), "BIN_DIR")
-    unset_key(str(env_file), "DATA_DIR")
-    unset_key(str(env_file), "DATA_FILE_PREFIX")
+    assert ENV_VARIABLES.assistant_description == "test_description"
+    assert ENV_VARIABLES.assistant_name == "test_name"
+    assert ENV_VARIABLES.bin_dir == "test_bin"
+    assert ENV_VARIABLES.data_dir == "test_data"
+    assert ENV_VARIABLES.data_file_prefix == "test_prefix"
+    assert ENV_VARIABLES.openai_model == "test_model"
