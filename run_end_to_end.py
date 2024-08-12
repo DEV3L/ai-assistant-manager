@@ -5,10 +5,12 @@ from ai_assistant_manager.assistants.assistant_service import (
 )
 from ai_assistant_manager.chats.chat import Chat
 from ai_assistant_manager.clients.openai_api import OpenAIClient, build_openai_client
+from ai_assistant_manager.exporters.directory.directory_exporter import DirectoryExporter
 from ai_assistant_manager.exporters.files.files_exporter import FilesExporter
 
 
 def main():
+    DirectoryExporter("directory").export()
     FilesExporter("about.txt").export()
 
     assistant_name = "AI-Assistant-Manager-Test"

@@ -88,7 +88,7 @@ class FilesExporter:
         """
         return os.path.join(
             self.get_dir_path(),
-            f"{self.data_file_prefix}_{self.file_name}",
+            f"{self.data_file_prefix} - {self.file_name}",
         )
 
     def _get_file_name_without_extension(self) -> str:

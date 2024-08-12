@@ -10,23 +10,23 @@ license = { file = "LICENSE" }
 readme = "README.md"
 authors = [{ name = "Justin Beall", email = "jus.beall@gmail.com" }]
 requires-python = ">=3.11"
-dependencies = ["loguru", "openai", "python-dotenv", "twine"]
+dependencies = ["loguru", "openai", "python-dateutil", "python-dotenv", "twine"]
 keywords = [
-    "openai",
-    "assistant",
-    "management",
     "AI",
-    "vector store",
+    "API",
+    "artificial intelligence",
+    "assistant",
+    "automation",
+    "chatbot",
+    "data science",
+    "deep learning",
     "machine learning",
+    "management",
     "natural language processing",
     "NLP",
-    "chatbot",
-    "automation",
+    "openai",
     "python",
-    "API",
-    "deep learning",
-    "artificial intelligence",
-    "data science",
+    "vector store",
 ]
 
 classifiers = [
