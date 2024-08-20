@@ -7,6 +7,7 @@ from ai_assistant_manager.chats.chat import Chat
 from ai_assistant_manager.clients.openai_api import OpenAIClient, build_openai_client
 from ai_assistant_manager.exporters.directory.directory_exporter import DirectoryExporter
 from ai_assistant_manager.exporters.files.files_exporter import FilesExporter
+from ai_assistant_manager.prompts.prompt import get_prompt
 
 
 def main():
@@ -17,7 +18,7 @@ def main():
     logger.info(f"Building {assistant_name}")
 
     client = OpenAIClient(build_openai_client())
-    service = AssistantService(client, "You are a helpful assistant")
+    service = AssistantService(client, get_prompt())
 
     logger.info("Removing existing assistant and category files")
     service.delete_assistant()
