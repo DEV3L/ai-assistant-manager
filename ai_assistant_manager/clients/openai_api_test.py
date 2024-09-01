@@ -103,7 +103,7 @@ class TestOpenAIClient(TestCase):
         self.mock_open_ai.beta.assistants.create.assert_called_once_with(
             name=name,
             instructions=instructions,
-            model="gpt-4o",
+            model="gpt-4o-2024-08-06",
             tool_resources={"file_search": {"vector_store_ids": vector_store_ids}},
             tools=tools,
         )

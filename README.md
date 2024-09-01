@@ -37,7 +37,7 @@ hatch shell
 
 The following environment variables can be configured in the `.env` file:
 
-- `OPENAI_MODEL`: The model to use (default: `gpt-4o`)
+- `OPENAI_MODEL`: The model to use (default: `gpt-4o-2024-08-06`)
 - `ASSISTANT_DESCRIPTION`: Description of the assistant (default: `AI Assistant Manager`)
 - `ASSISTANT_NAME`: Name of the assistant (default: `AI Assistant Manager`)
 - `BIN_DIR`: Directory for binaries (default: `bin`)
@@ -74,8 +74,10 @@ from ai_assistant_manager.assistants.assistant_service import (
 )
 from ai_assistant_manager.chats.chat import Chat
 from ai_assistant_manager.clients.openai_api import OpenAIClient, build_openai_client
+from ai_assistant_manager.env_variables import set_env_variables
 from ai_assistant_manager.exporters.directory.directory_exporter import DirectoryExporter
 from ai_assistant_manager.exporters.files.files_exporter import FilesExporter
+from ai_assistant_manager.prompts.prompt import get_prompt
 
 
 def main():
@@ -86,7 +88,7 @@ def main():
     logger.info(f"Building {assistant_name}")
 
     client = OpenAIClient(build_openai_client())
-    service = AssistantService(client, "You are a helpful assistant")
+    service = AssistantService(client, get_prompt())
 
     logger.info("Removing existing assistant and category files")
     service.delete_assistant()
@@ -100,14 +102,16 @@ def main():
     message = "What is the AI Assistant Manager?"
     print(f"\nMessage:\n{message}")
 
-    start_response = chat.send_user_message(message)
-    print(f"\n{service.assistant_name}:\n{start_response}")
+    chat_response = chat.send_user_message(message)
+    print(f"\n{service.assistant_name}:\n{chat_response.message}")
+    print(f"\nTokens: {chat_response.token_count}")
 
-    # service.delete_assistant()
+    // service.delete_assistant()
 
 
 if __name__ == "__main__":
     try:
+        set_env_variables()
         main()
     except Exception as e:
         logger.info(f"Error: {e}")

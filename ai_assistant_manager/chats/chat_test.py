@@ -6,6 +6,7 @@ from openai.types.beta.threads.text import Text
 from openai.types.beta.threads.text_content_block import TextContentBlock
 
 from ai_assistant_manager.chats.chat import Chat
+from ai_assistant_manager.chats.chat_response import ChatResponse
 
 
 class TestChat(TestCase):
@@ -48,12 +49,12 @@ class TestChat(TestCase):
         self.mock_client.messages_create.return_value = None
         self.mock_client.messages_list.return_value.data = [{"content": "Hello"}]
         self.chat.thread_id = "thread_id"
-        self.chat.run_thread = MagicMock()
+        self.chat.run_thread = MagicMock(return_value=10)
         self.chat.last_message = MagicMock(return_value="Hello")
 
         result = self.chat.send_user_message("Test message")
 
-        assert result == "Hello"
+        assert result == ChatResponse(message="Hello", token_count=10)
         self.mock_client.messages_create.assert_called_once_with("thread_id", "Test message", "user")
         self.chat.run_thread.assert_called_once()
         self.chat.last_message.assert_called_once()

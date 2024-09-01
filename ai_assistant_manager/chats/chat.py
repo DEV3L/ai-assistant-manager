@@ -2,6 +2,7 @@ import time
 
 from loguru import logger
 
+from ai_assistant_manager.chats.chat_response import ChatResponse
 from ai_assistant_manager.clients.openai_api import OpenAIClient
 from ai_assistant_manager.timer.timer import timer
 
@@ -43,34 +44,35 @@ class Chat:
         self.thread_id = self.thread_id or self.client.threads_create().id
         logger.info(f"Thread ID: {self.thread_id}")
 
-    def send_user_message(self, message: str):
+    def send_user_message(self, message: str) -> ChatResponse:
         """
         Send a user message to the chat thread and run the thread.
 
         :param message: The message content to send.
         :return: The last message content from the thread.
         """
-        # Send the user message to the thread
         self.client.messages_create(
             self.thread_id,
             self.remove_tool_call_from_message(message),
             "user",
         )
+
         # Run the thread, potentially forcing a tool call
-        self.run_thread(self.should_force_tool_call(message))
-        return self.last_message()
+        tokens = self.run_thread(self.should_force_tool_call(message))
+        return ChatResponse(message=self.last_message(), token_count=tokens)
 
     @timer("Run Thread")
-    def run_thread(self, should_force_tool_call: bool):
+    def run_thread(self, should_force_tool_call: bool) -> int:
         """
         Run the thread, potentially forcing a tool call.
 
         :param should_force_tool_call: Whether to force a tool call during the run.
+        :return: The total number of tokens used in the run.
         """
         run = self.client.runs_create(self.assistant_id, self.thread_id, should_force_tool_call)
-        self._wait_for_run_to_complete(run.id)
+        return self._wait_for_run_to_complete(run.id)
 
-    def _wait_for_run_to_complete(self, run_id: str, *, step: float = 0.25, timeout_in_seconds: int = 120):
+    def _wait_for_run_to_complete(self, run_id: str, *, step: float = 0.25, timeout_in_seconds: int = 120) -> int:
         """
         Wait for a run to complete, polling at regular intervals.
 
@@ -78,6 +80,7 @@ class Chat:
         :param step: The polling interval in seconds.
         :param timeout_in_seconds: The maximum time to wait in seconds.
         :raises RuntimeError: If the run fails or times out.
+        :return: The total number of tokens used in the run.
         """
         timeout = timeout_in_seconds / step
 
@@ -85,7 +88,7 @@ class Chat:
             run = self.client.runs_retrieve(run_id, self.thread_id)
 
             if run.status in ["completed"]:
-                return
+                return run.usage.total_tokens
             # requires_action will need to be handled by user
             if run.status in ["failed", "expired", "cancelled", "requires_action"]:
                 raise RuntimeError(f"Run failed with status: {run.status}")
@@ -116,7 +119,7 @@ class Chat:
         """
         return self.client.messages_list(self.thread_id).data
 
-    def remove_tool_call_from_message(self, message):
+    def remove_tool_call_from_message(self, message: str) -> str:
         """
         Remove the tool call prefix from the message if it exists.
 
@@ -125,7 +128,7 @@ class Chat:
         """
         return message.replace(TOOL_CALL_PREFIX, "", 1) if self.should_force_tool_call(message) else message
 
-    def should_force_tool_call(self, message):
+    def should_force_tool_call(self, message: str) -> bool:
         """
         Determine if the message should force a tool call.
 
