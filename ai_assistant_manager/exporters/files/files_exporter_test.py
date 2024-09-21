@@ -3,7 +3,8 @@ from unittest.mock import Mock, patch
 import pytest
 
 from ai_assistant_manager.env_variables import ENV_VARIABLES
-from ai_assistant_manager.exporters.files.files_exporter import FilesExporter
+
+from .files_exporter import FilesExporter
 
 FILE_NAME = "test_file.txt"
 DATA_DIRECTORY = "test_dir"

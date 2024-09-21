@@ -3,8 +3,9 @@ from unittest.mock import Mock, mock_open, patch
 import pytest
 
 from ai_assistant_manager.env_variables import ENV_VARIABLES
-from ai_assistant_manager.exporters.content_data import ContentData
-from ai_assistant_manager.exporters.directory.directory_exporter import DirectoryExporter
+
+from ..content_data import ContentData
+from .directory_exporter import DirectoryExporter
 
 example_directory = "directory"
 

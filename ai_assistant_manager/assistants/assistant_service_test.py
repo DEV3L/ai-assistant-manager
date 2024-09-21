@@ -1,8 +1,8 @@
 from unittest import TestCase, mock
 from unittest.mock import MagicMock, mock_open, patch
 
-from ai_assistant_manager.assistants.assistant_service import AssistantService
-from ai_assistant_manager.env_variables import ENV_VARIABLES
+from ..env_variables import ENV_VARIABLES
+from .assistant_service import AssistantService
 
 
 class TestAssistantService(TestCase):

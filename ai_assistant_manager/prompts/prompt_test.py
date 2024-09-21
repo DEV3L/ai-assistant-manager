@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from ai_assistant_manager.prompts.prompt import SAMPLE_PROMPT_PATH, get_prompt
+from .prompt import SAMPLE_PROMPT_PATH, get_prompt
 
 
 def test_get_prompt():

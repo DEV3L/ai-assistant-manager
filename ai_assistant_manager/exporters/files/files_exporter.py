@@ -4,7 +4,8 @@ import shutil
 from loguru import logger
 
 from ai_assistant_manager.env_variables import ENV_VARIABLES
-from ai_assistant_manager.exporters.exporter import (
+
+from ..exporter import (
     create_dir,
     does_data_exist,
 )

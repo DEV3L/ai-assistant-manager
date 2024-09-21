@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from ai_assistant_manager.timer.timer import timer
+from .timer import timer
 
 
 def test_timer_decorator():

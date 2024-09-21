@@ -5,8 +5,8 @@ import pytest
 from openai.types.beta.threads.text import Text
 from openai.types.beta.threads.text_content_block import TextContentBlock
 
-from ai_assistant_manager.chats.chat import Chat
-from ai_assistant_manager.chats.chat_response import ChatResponse
+from .chat import Chat
+from .chat_response import ChatResponse
 
 
 class TestChat(TestCase):
@@ -31,6 +31,13 @@ class TestChat(TestCase):
         self.chat.start()
 
         assert self.chat.thread_id == "thread_id"
+
+    def test_chat_create_thread(self):
+        self.mock_client.threads_create.return_value.id = "thread_id"
+
+        thread_id = self.chat.create_thread()
+
+        assert thread_id == "thread_id"
 
     def test_chat_start_with_thread(self):
         """

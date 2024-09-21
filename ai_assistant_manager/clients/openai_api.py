@@ -5,8 +5,8 @@ from typing import Literal
 from loguru import logger
 from openai import OpenAI
 
-from ai_assistant_manager.env_variables import ENV_VARIABLES
-from ai_assistant_manager.timer.timer import timer
+from ..env_variables import ENV_VARIABLES
+from ..timer.timer import timer
 
 
 def build_openai_client():

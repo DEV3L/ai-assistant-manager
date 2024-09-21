@@ -2,8 +2,8 @@ import os
 
 from loguru import logger
 
-from ai_assistant_manager.clients.openai_api import OpenAIClient
-from ai_assistant_manager.env_variables import ENV_VARIABLES
+from ..clients.openai_api import OpenAIClient
+from ..env_variables import ENV_VARIABLES
 
 RETRIEVAL_TOOLS = [
     {"type": "file_search"},

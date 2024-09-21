@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from ai_assistant_manager.clients.openai_api import OpenAIClient, build_openai_client
+from .openai_api import OpenAIClient, build_openai_client
 
 
 @patch("ai_assistant_manager.clients.openai_api.OpenAI")

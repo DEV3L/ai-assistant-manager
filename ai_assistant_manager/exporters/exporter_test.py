@@ -1,6 +1,6 @@
 from unittest.mock import Mock, patch
 
-from ai_assistant_manager.exporters.exporter import create_dir, does_data_exist
+from .exporter import create_dir, does_data_exist
 
 
 def test_does_data_exist():

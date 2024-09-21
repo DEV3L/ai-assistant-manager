@@ -2,9 +2,9 @@ import time
 
 from loguru import logger
 
-from ai_assistant_manager.chats.chat_response import ChatResponse
-from ai_assistant_manager.clients.openai_api import OpenAIClient
-from ai_assistant_manager.timer.timer import timer
+from ..clients.openai_api import OpenAIClient
+from ..timer.timer import timer
+from .chat_response import ChatResponse
 
 TOOL_CALL_PREFIX = "tc!"
 
@@ -41,8 +41,11 @@ class Chat:
         """
         logger.info("Starting Chat")
         # Create a new thread if thread_id is not already set
-        self.thread_id = self.thread_id or self.client.threads_create().id
+        self.thread_id = self.thread_id or self.create_thread()
         logger.info(f"Thread ID: {self.thread_id}")
+
+    def create_thread(self):
+        return self.client.threads_create().id
 
     def send_user_message(self, message: str) -> ChatResponse:
         """
