@@ -1,5 +1,7 @@
 # AI Assistant Manager
 
+![AI Assistant Manager Banner](ai-assistant-manager.png)
+
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ai-assistant-manager)
 ![PyPI version](https://img.shields.io/pypi/v/ai-assistant-manager)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
