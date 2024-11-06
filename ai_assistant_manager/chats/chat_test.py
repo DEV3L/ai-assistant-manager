@@ -16,16 +16,10 @@ class TestChat(TestCase):
     mock_client: MagicMock
 
     def setUp(self):
-        """
-        Set up the test case with a mocked client and a Chat instance.
-        """
         self.mock_client = MagicMock()
         self.chat = Chat(self.mock_client, self.assistant_id)
 
     def test_chat_start_sets_thread_id(self):
-        """
-        Test that starting a chat sets the thread ID correctly.
-        """
         self.mock_client.threads_create.return_value.id = "thread_id"
 
         self.chat.start()
@@ -40,9 +34,6 @@ class TestChat(TestCase):
         assert thread_id == "thread_id"
 
     def test_chat_start_with_thread(self):
-        """
-        Test that starting a chat with an existing thread ID does not change the thread ID.
-        """
         self.chat.thread_id = "my_thread_id"
 
         self.chat.start()
@@ -50,9 +41,6 @@ class TestChat(TestCase):
         assert self.chat.thread_id == "my_thread_id"
 
     def test_send_user_message(self):
-        """
-        Test that sending a user message works correctly and triggers the appropriate methods.
-        """
         self.mock_client.messages_create.return_value = None
         self.mock_client.messages_list.return_value.data = [{"content": "Hello"}]
         self.chat.thread_id = "thread_id"
@@ -67,9 +55,6 @@ class TestChat(TestCase):
         self.chat.last_message.assert_called_once()
 
     def test_chat_run_thread(self):
-        """
-        Test that running a thread creates a run and waits for it to complete.
-        """
         self.mock_client.runs_create.return_value.id = "run_id"
         self.chat.thread_id = "thread_id"
 
@@ -79,9 +64,6 @@ class TestChat(TestCase):
         mock_wait_for_run_to_complete.assert_called_once_with("run_id")
 
     def test_wait_for_run_to_complete_success(self):
-        """
-        Test that waiting for a run to complete works correctly when the run is successful.
-        """
         self.mock_client.runs_retrieve.return_value.status = "completed"
 
         with patch("time.sleep", return_value=None):
@@ -94,9 +76,6 @@ class TestChat(TestCase):
         )
 
     def test_wait_for_run_to_complete_failure(self):
-        """
-        Test that waiting for a run to complete raises an error when the run fails.
-        """
         self.mock_client.runs_retrieve.return_value.status = "failed"
 
         with patch("time.sleep", return_value=None):
@@ -110,9 +89,6 @@ class TestChat(TestCase):
         )
 
     def test_wait_for_run_to_complete_timeout(self):
-        """
-        Test that waiting for a run to complete raises an error when the run times out.
-        """
         self.mock_client.runs_retrieve.return_value.status = "running"
 
         with patch("time.sleep", return_value=None):
@@ -126,9 +102,6 @@ class TestChat(TestCase):
         )
 
     def test_last_message(self):
-        """
-        Test that retrieving the last message works correctly.
-        """
         self.mock_client.messages_list.return_value.data = [
             MagicMock(content=[MagicMock(text=MagicMock(value="Hello"))])
         ]
@@ -140,9 +113,6 @@ class TestChat(TestCase):
         self.mock_client.messages_list.assert_called_once_with("thread_id")
 
     def test_last_message_with_text_content(self):
-        """
-        Test that retrieving the last message with text content works correctly.
-        """
         self.chat._get_messages = MagicMock(
             return_value=[
                 MagicMock(content=[TextContentBlock(text=Text(annotations=[], value="Hello, world!"), type="text")])
@@ -151,9 +121,6 @@ class TestChat(TestCase):
         assert self.chat.last_message() == "Hello, world!"
 
     def test_last_message_with_no_text_content(self):
-        """
-        Test that retrieving the last message raises an error when there is no text content.
-        """
         not_text = MagicMock()
         delattr(not_text, "text")
         self.chat._get_messages = MagicMock(return_value=[MagicMock(content=[not_text])])
@@ -161,15 +128,9 @@ class TestChat(TestCase):
             self.chat.last_message()
 
     def test_remove_tool_call_from_message(self):
-        """
-        Test that removing a tool call from a message works correctly.
-        """
         assert self.chat.remove_tool_call_from_message("tc! call") == " call"
         assert self.chat.remove_tool_call_from_message(" tc! call") == " tc! call"
 
     def test_should_force_tool_call(self):
-        """
-        Test that checking if a message should force a tool call works correctly.
-        """
         assert self.chat.should_force_tool_call("tc!")
         assert not self.chat.should_force_tool_call(" tc!")

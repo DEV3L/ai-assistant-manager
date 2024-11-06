@@ -1,0 +1,21 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "get_weather",
+      "description": "Retrieves the current weather for a specified location.",
+      "strict": false,
+
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "The location to get the weather for. Defaults to 'Medina, Ohio'."
+          }
+        },
+        "required": []
+      }
+    }
+  }
+]

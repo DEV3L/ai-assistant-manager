@@ -60,6 +60,7 @@ dependencies = ["pyright", "pytest", "pytest-cov"]
 
 [tool.hatch.envs.default.scripts]
 e2e = "python run_end_to_end.py"
+e2e_with_tools = "python run_end_to_end_with_tools.py"
 test = "pytest --cache-clear --cov --cov-report lcov --cov-report term"
 publish = "rm -rf bin && rm -rf dist && hatch build && twine upload dist/*"
 
