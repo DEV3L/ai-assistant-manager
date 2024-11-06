@@ -4,10 +4,6 @@ from .timer import timer
 
 
 def test_timer_decorator():
-    """
-    Test that the timer decorator logs the correct message when the decorated function is called.
-    """
-
     @timer("Test function")
     def dummy_function():
         pass

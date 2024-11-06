@@ -12,18 +12,12 @@ DATA_DIRECTORY = "test_dir"
 
 @pytest.fixture(name="exporter")
 def build_exporter() -> FilesExporter:
-    """
-    Fixture to create a FilesExporter instance for testing.
-    """
     return FilesExporter(FILE_NAME, directory=DATA_DIRECTORY)
 
 
 @patch("ai_assistant_manager.exporters.files.files_exporter.create_dir")
 @patch("ai_assistant_manager.exporters.files.files_exporter.does_data_exist")
 def test_export_data_exists(mock_does_data_exist: Mock, mock_create_dir: Mock, exporter: FilesExporter) -> None:
-    """
-    Test that export does not create directory if data already exists.
-    """
     mock_does_data_exist.return_value = True
 
     exporter.export()
@@ -34,9 +28,6 @@ def test_export_data_exists(mock_does_data_exist: Mock, mock_create_dir: Mock, e
 @patch("ai_assistant_manager.exporters.files.files_exporter.create_dir")
 @patch("ai_assistant_manager.exporters.files.files_exporter.does_data_exist")
 def test_export_data_does_not_exist(mock_does_data_exist: Mock, mock_create_dir: Mock, exporter: FilesExporter) -> None:
-    """
-    Test that export creates directory and writes data if data does not exist.
-    """
     mock_does_data_exist.return_value = False
 
     exporter.write_data = Mock()
@@ -49,9 +40,6 @@ def test_export_data_does_not_exist(mock_does_data_exist: Mock, mock_create_dir:
 
 @patch("ai_assistant_manager.exporters.files.files_exporter.shutil")
 def test_write_data(mock_shutil: Mock, exporter: FilesExporter) -> None:
-    """
-    Test that write_data correctly copies the file to the target path.
-    """
     exporter.get_file_path = Mock(return_value="path/to/file")
 
     exporter.write_data()
@@ -60,18 +48,12 @@ def test_write_data(mock_shutil: Mock, exporter: FilesExporter) -> None:
 
 
 def test_get_dir_path(exporter: FilesExporter) -> None:
-    """
-    Test that get_dir_path returns the correct directory path.
-    """
     result = exporter.get_dir_path()
 
     assert result == f"{ENV_VARIABLES.bin_dir}/{DATA_DIRECTORY}"
 
 
 def test_get_file_path(exporter: FilesExporter) -> None:
-    """
-    Test that get_file_path returns the correct file path.
-    """
     result = exporter.get_file_path()
 
     assert result == f"{ENV_VARIABLES.bin_dir}/{DATA_DIRECTORY}/{ENV_VARIABLES.data_file_prefix} - {FILE_NAME}"

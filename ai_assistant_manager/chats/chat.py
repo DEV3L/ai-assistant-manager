@@ -41,7 +41,7 @@ class Chat:
         return ChatResponse(message=self.last_message(), token_count=tokens)
 
     @timer("Run Thread")
-    def run_thread(self, should_force_tool_call: bool) -> int:
+    def run_thread(self, should_force_tool_call: bool = False) -> int:
         run = self.client.runs_create(self.assistant_id, self.thread_id, should_force_tool_call)
         return self._wait_for_run_to_complete(run.id)
 

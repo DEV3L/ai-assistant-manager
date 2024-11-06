@@ -59,6 +59,16 @@ class TestOpenAIClient(TestCase):
         self.client.runs_retrieve(run_id, thread_id)
         self.mock_open_ai.beta.threads.runs.retrieve.assert_called_once_with(run_id, thread_id=thread_id)
 
+    def test_submit_tool_outputs_to_run(self):
+        run_id = "run_id"
+        thread_id = "thread_id"
+        tool_call_id = "tool_call_id"
+        response = "response"
+        self.client.submit_tool_outputs_to_run(run_id, tool_call_id, thread_id, response)
+        self.mock_open_ai.beta.threads.runs.submit_tool_outputs.assert_called_once_with(
+            run_id, thread_id=thread_id, tool_outputs=[{"output": response, "tool_call_id": tool_call_id}]
+        )
+
     def test_assistants_list(self):
         self.client.assistants_list()
         self.mock_open_ai.beta.assistants.list.assert_called_once()

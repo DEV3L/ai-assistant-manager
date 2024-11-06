@@ -12,18 +12,12 @@ example_directory = "directory"
 
 @pytest.fixture(name="exporter")
 def build_exporter() -> DirectoryExporter:
-    """
-    Fixture to create a DirectoryExporter instance for testing.
-    """
     return DirectoryExporter(example_directory)
 
 
 @patch("ai_assistant_manager.exporters.directory.directory_exporter.create_dir")
 @patch("ai_assistant_manager.exporters.directory.directory_exporter.does_data_exist")
 def test_export_data_exists(mock_does_data_exist: Mock, mock_create_dir: Mock, exporter: DirectoryExporter):
-    """
-    Test that export does not create directory if data already exists.
-    """
     mock_does_data_exist.return_value = True
 
     exporter.export()
@@ -34,9 +28,6 @@ def test_export_data_exists(mock_does_data_exist: Mock, mock_create_dir: Mock, e
 @patch("ai_assistant_manager.exporters.directory.directory_exporter.create_dir")
 @patch("ai_assistant_manager.exporters.directory.directory_exporter.does_data_exist")
 def test_export_data_does_not_exist(mock_does_data_exist: Mock, mock_create_dir: Mock, exporter: DirectoryExporter):
-    """
-    Test that export creates directory and writes data if data does not exist.
-    """
     mock_does_data_exist.return_value = False
 
     exporter.write_data = Mock()
@@ -50,9 +41,6 @@ def test_export_data_does_not_exist(mock_does_data_exist: Mock, mock_create_dir:
 @patch("builtins.open", new_callable=mock_open)
 @patch("json.dumps")
 def test_write_data(mock_json_dumps: Mock, mock_open_file: Mock, exporter: DirectoryExporter):
-    """
-    Test that write_data correctly writes JSON data to a file.
-    """
     exporter.load = Mock(return_value=[])
     mock_json_dumps.return_value = "{}"
 
@@ -65,9 +53,6 @@ def test_write_data(mock_json_dumps: Mock, mock_open_file: Mock, exporter: Direc
 
 @patch("os.listdir")
 def test_load(mock_listdir: Mock, exporter: DirectoryExporter):
-    """
-    Test that load correctly loads data from files in the directory.
-    """
     exporter.file_load = Mock(return_value=ContentData(id="1", title="Test", body="Test body", date="2022-01-01"))
     mock_listdir.return_value = ["01 We Call It Saw Time.txt"]
 
@@ -78,9 +63,6 @@ def test_load(mock_listdir: Mock, exporter: DirectoryExporter):
 
 
 def test_file_load(exporter: DirectoryExporter):
-    """
-    Test that file_load correctly loads data from a single file.
-    """
     exporter.get_data_dir_path = Mock(return_value="data/directory")
 
     filename = "001 Test File.md"
@@ -93,18 +75,12 @@ def test_file_load(exporter: DirectoryExporter):
 
 
 def test_get_dir_path(exporter: DirectoryExporter):
-    """
-    Test that get_dir_path returns the correct directory path.
-    """
     result = exporter.get_dir_path()
 
     assert result == f"{ENV_VARIABLES.bin_dir}/{example_directory}"
 
 
 def test_get_file_path(exporter: DirectoryExporter):
-    """
-    Test that get_file_path returns the correct file path.
-    """
     result = exporter.get_file_path()
 
     assert (
@@ -114,9 +90,6 @@ def test_get_file_path(exporter: DirectoryExporter):
 
 
 def test_get_data_dir_path(exporter: DirectoryExporter):
-    """
-    Test that get_data_dir_path returns the correct data directory path.
-    """
     result = exporter.get_data_dir_path()
 
     assert result == f"{ENV_VARIABLES.data_dir}/{example_directory}"

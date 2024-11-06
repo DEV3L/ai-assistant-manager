@@ -37,7 +37,7 @@ def main():
     chat = Chat(client, assistant_id)
     chat.start()
 
-    message = "What is the weather like today in India?"
+    message = "What is the weather like today?"
     print(f"\nMessage:\n{message}")
 
     try:

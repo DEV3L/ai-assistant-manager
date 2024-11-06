@@ -1,3 +1,4 @@
+import json
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
@@ -5,7 +6,7 @@ import pytest
 from openai.types.beta.threads.text import Text
 from openai.types.beta.threads.text_content_block import TextContentBlock
 
-from .chat import Chat
+from .chat import ActionData, Chat, RequiresActionException
 from .chat_response import ChatResponse
 
 
@@ -54,6 +55,21 @@ class TestChat(TestCase):
         self.chat.run_thread.assert_called_once()
         self.chat.last_message.assert_called_once()
 
+    def test_submit_tool_outputs(self):
+        self.mock_client.messages_create.return_value = None
+        self.mock_client.messages_list.return_value.data = [{"content": "Hello"}]
+        self.chat.thread_id = "thread_id"
+        self.chat.run_thread = MagicMock(return_value=10)
+        self.chat.last_message = MagicMock(return_value="Hello")
+        self.mock_client.runs_retrieve.return_value = MagicMock(status="completed", usage=MagicMock(total_tokens=10))
+        result = self.chat.submit_tool_outputs("run_id", "tool_call_id", "response")
+
+        assert result == ChatResponse(message="Hello", token_count=10)
+        self.mock_client.submit_tool_outputs_to_run.assert_called_once_with(
+            "run_id", "tool_call_id", "thread_id", "response"
+        )
+        self.chat.last_message.assert_called_once()
+
     def test_chat_run_thread(self):
         self.mock_client.runs_create.return_value.id = "run_id"
         self.chat.thread_id = "thread_id"
@@ -62,6 +78,30 @@ class TestChat(TestCase):
             self.chat.run_thread(False)
 
         mock_wait_for_run_to_complete.assert_called_once_with("run_id")
+
+    def test_chat_run_thread_with_tool_call(self):
+        arguments = '{"arguments": "arguments"}'
+        function_mock = MagicMock(arguments=arguments)
+        function_mock.name = "Grogu"
+
+        self.mock_client.runs_create.return_value.id = "run_id"
+        self.mock_client.runs_retrieve.return_value = MagicMock(
+            status="requires_action",
+            required_action=MagicMock(
+                type="submit_tool_outputs",
+                submit_tool_outputs=MagicMock(
+                    tool_calls=[MagicMock(id="tool_call_id", function=function_mock)],
+                ),
+            ),
+        )
+        self.chat.thread_id = "thread_id"
+
+        with pytest.raises(RequiresActionException) as action_exception:
+            self.chat.run_thread()
+
+        assert action_exception.value.data == ActionData(
+            run_id="run_id", tool_call_id="tool_call_id", name="Grogu", arguments=json.loads(arguments)
+        )
 
     def test_wait_for_run_to_complete_success(self):
         self.mock_client.runs_retrieve.return_value.status = "completed"
