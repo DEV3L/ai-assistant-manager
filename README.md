@@ -21,6 +21,7 @@ By automating the management of AI assistants and their associated resources, **
 - **Assistant Management**: Create, list, and delete OpenAI assistants with ease.
 - **Vector Store Handling**: Manage vector stores for retrieval-augmented generation (RAG) models.
 - **Retrieval File Management**: Create and handle retrieval files efficiently.
+- **Requires Action Tool Hooking**: Integrate and handle `requires_action` tool calls from OpenAI, enabling dynamic responses based on assistant actions.
 - **Open Source**: Freely available for modification and integration.
 - **Testing Suite**: Includes end-to-end and unit tests to ensure reliability.
 - **Environment Management**: Utilizes Hatch for consistent development environments.
@@ -104,7 +105,9 @@ Configure the following environment variables in your `.env` file:
 
 ### Running the Example
 
-To see **AI Assistant Manager** in action, you can run the provided example script:
+To see **AI Assistant Manager** in action, you can run the provided example scripts:
+
+#### Basic End-to-End Example
 
 ```python
 from loguru import logger
@@ -153,7 +156,80 @@ if __name__ == "__main__":
         logger.info(f"Error: {e}")
 ```
 
-### Running the Script
+#### End-to-End Example with Requires Action Tool Calls
+
+To utilize the new feature of hooking into `requires_action` tool calls, run the enhanced example script:
+
+```python
+from loguru import logger
+
+from ai_assistant_manager.assistants.assistant_service import (
+    RETRIEVAL_TOOLS,
+    AssistantService,
+)
+from ai_assistant_manager.chats.chat import Chat, RequiresActionException
+from ai_assistant_manager.clients.openai_api import OpenAIClient, build_openai_client
+from ai_assistant_manager.env_variables import ENV_VARIABLES, set_env_variables
+from ai_assistant_manager.exporters.directory.directory_exporter import DirectoryExporter
+from ai_assistant_manager.exporters.files.files_exporter import FilesExporter
+from ai_assistant_manager.prompts.prompt import SAMPLE_PROMPT_PATH_WITH_TOOLS, get_prompt
+from ai_assistant_manager.tools.tools import get_tools
+from ai_assistant_manager.tools.weather import get_weather
+
+assistant_name = "AI-Assistant-Manager-Tool-Test"
+
+
+def main():
+    DirectoryExporter("directory").export()
+    FilesExporter("about.txt").export()
+
+    logger.info(f"Building {assistant_name}")
+
+    tools_from_file = get_tools()
+    tools_from_file.extend(RETRIEVAL_TOOLS)
+
+    client = OpenAIClient(build_openai_client())
+    service = AssistantService(client, get_prompt(prompt_path=SAMPLE_PROMPT_PATH_WITH_TOOLS), tools=tools_from_file)
+
+    logger.info("Removing existing assistant and category files")
+    service.delete_assistant()
+
+    assistant_id = service.get_assistant_id()
+    logger.info(f"Assistant ID: {assistant_id}")
+
+    chat = Chat(client, assistant_id)
+    chat.start()
+
+    message = "What is the weather like today?"
+    print(f"\nMessage:\n{message}")
+
+    try:
+        chat_response = chat.send_user_message(message)
+        assert False
+    except RequiresActionException as e:
+        print(f"\n{service.assistant_name}:\nTOOL_CALL: {e.data}")
+        weather_result = get_weather(e.data.arguments["location"])
+        print(weather_result)
+
+        chat_response = chat.submit_tool_outputs(e.data.run_id, e.data.tool_call_id, weather_result)
+        print(f"\n{service.assistant_name}:\n{chat_response.message}")
+        print(f"\nTokens: {chat_response.token_count}")
+
+    service.delete_assistant()
+
+
+if __name__ == "__main__":
+    try:
+        set_env_variables()
+        ENV_VARIABLES.assistant_name = assistant_name
+        main()
+    except Exception as e:
+        logger.info(f"Error: {e}")
+```
+
+### Running the Scripts
+
+#### Basic End-to-End Test
 
 ```bash
 python run_end_to_end.py
@@ -167,12 +243,33 @@ This script will:
 - Send a message and display the assistant's response.
 - Clean up by deleting the assistant after the session.
 
+#### End-to-End Test with Tools
+
+```bash
+hatch run e2e_with_tools
+```
+
+This script demonstrates the new feature by:
+
+- Exporting necessary directories and files.
+- Setting up tools for handling `requires_action` tool calls.
+- Initiating a chat that triggers a tool call (e.g., fetching weather information).
+- Handling the tool call by executing the appropriate function and submitting the result back to the assistant.
+- Displaying the final response and token usage.
+- Cleaning up resources by deleting the assistant.
+
 ## Available Scripts
 
 - **Run End-to-End Test**:
 
   ```bash
   hatch run e2e
+  ```
+
+- **Run End-to-End Test with Tools**:
+
+  ```bash
+  hatch run e2e_with_tools
   ```
 
 - **Run Unit Tests**:
@@ -197,6 +294,14 @@ Run the end-to-end test to ensure the tool works as expected:
 
 ```bash
 hatch run e2e
+```
+
+### End-to-End Test with Tools
+
+To test the new `requires_action` tool call feature:
+
+```bash
+hatch run e2e_with_tools
 ```
 
 ### Unit Tests
@@ -240,7 +345,11 @@ ai-assistant-manager/
 │   │   └── exporter.py
 │   ├── prompts/
 │   │   ├── sample_prompt.md
+│   │   ├── sample_prompt_with_tool_call.md
 │   │   └── prompt.py
+│   ├── tools/
+│   │   ├── tools.py
+│   │   └── weather.py
 │   ├── content_data.py
 │   ├── env_variables.py
 │   └── encoding.py
@@ -260,12 +369,15 @@ ai-assistant-manager/
 │   │   └── exporter_test.py
 │   ├── prompts/
 │   │   └── prompt_test.py
+│   ├── tools/
+│   │   └── tools_test.py
 │   ├── env_variables_test.py
 │   └── timer_test.py
 ├── .env.default
 ├── pyproject.toml
 ├── README.md
 ├── run_end_to_end.py
+├── run_end_to_end_with_tools.py
 ├── LICENSE
 ```
 
@@ -275,12 +387,15 @@ ai-assistant-manager/
   - **clients/**: OpenAI client interactions.
   - **exporters/**: Export data to files or directories.
   - **prompts/**: Manage assistant prompts.
+  - **tools/**: Tools for handling assistant actions, including weather retrieval.
   - **env_variables.py**: Environment variable management.
   - **encoding.py**: Encoding configurations.
 - **tests/**: Contains unit tests for the code.
 - **.env.default**: Template for environment variables.
 - **pyproject.toml**: Project configuration and dependencies.
-- **run_end_to_end.py**: Script to execute the end-to-end process.
+- **README.md**: Project documentation.
+- **run_end_to_end.py**: Script to execute the basic end-to-end process.
+- **run_end_to_end_with_tools.py**: Script to execute the end-to-end process with `requires_action` tool calls.
 - **LICENSE**: Project license information.
 
 ## Contributing Guidelines
