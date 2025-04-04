@@ -24,7 +24,7 @@ def set_env_variables(env_file_path: str | None = None):
     ENV_VARIABLES.bin_dir = os.getenv("BIN_DIR", "bin")
     ENV_VARIABLES.data_dir = os.getenv("DATA_DIR", "data")
     ENV_VARIABLES.data_file_prefix = os.getenv("DATA_FILE_PREFIX", "AI Assistant Manager")
-    ENV_VARIABLES.openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-2024-08-06")
+    ENV_VARIABLES.openai_model = os.getenv("OPENAI_MODEL", "gpt-4o")
 
 
 # Initialize the global ENV_VARIABLES instance with default values or values from the environment
@@ -34,5 +34,5 @@ ENV_VARIABLES = EnvVariables(
     bin_dir=os.getenv("BIN_DIR", "bin"),
     data_dir=os.getenv("DATA_DIR", "data"),
     data_file_prefix=os.getenv("DATA_FILE_PREFIX", "AI Assistant Manager"),
-    openai_model=os.getenv("OPENAI_MODEL", "gpt-4o-2024-08-06"),
+    openai_model=os.getenv("OPENAI_MODEL", "gpt-4o"),
 )

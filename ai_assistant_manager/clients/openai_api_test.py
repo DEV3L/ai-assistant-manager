@@ -82,7 +82,7 @@ class TestOpenAIClient(TestCase):
         self.mock_open_ai.beta.assistants.create.assert_called_once_with(
             name=name,
             instructions=instructions,
-            model="gpt-4o-2024-08-06",
+            model="gpt-4o",
             tool_resources={"file_search": {"vector_store_ids": vector_store_ids}},
             tools=tools,
         )
@@ -173,9 +173,7 @@ class TestOpenAIClient(TestCase):
         vector_store_id = "vector_store_id"
         file_id = "file_id"
         self.client.vector_stores_file_delete(vector_store_id, file_id)
-        self.mock_open_ai.vector_stores.files.delete.assert_called_once_with(
-            file_id, vector_store_id=vector_store_id
-        )
+        self.mock_open_ai.vector_stores.files.delete.assert_called_once_with(file_id, vector_store_id=vector_store_id)
         self.mock_open_ai.files.delete.assert_called_once_with(file_id)
 
     def test_vector_stores_files(self):

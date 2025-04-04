@@ -20,8 +20,8 @@ class AssistantService:
     def __init__(
         self,
         client: OpenAIClient,
-        prompt: str,
         *,
+        prompt: str | None = None,
         assistant_name: str | None = None,
         data_file_prefix: str | None = None,
         tools: list[dict] = RETRIEVAL_TOOLS,
@@ -29,16 +29,27 @@ class AssistantService:
         self.client = client
         self.prompt = prompt
         self.assistant_name = assistant_name if assistant_name else ENV_VARIABLES.assistant_name
-        self.data_file_prefix = data_file_prefix if data_file_prefix else ENV_VARIABLES.data_file_prefix
+        self.data_file_prefix = data_file_prefix if data_file_prefix else self.assistant_name
         self.tools = tools
 
-    def get_assistant_id(self):
-        return self._find_existing_assistant() or self._create_assistant()
+    def get_assistant_id(self) -> str | None:
+        assistant_id = self._find_existing_assistant(self.assistant_name)
+        if assistant_id:
+            return assistant_id
+        else:
+            return self._create_assistant()
 
-    def _find_existing_assistant(self):
+    def get_assistant_by_key(self, assistant_key: str) -> str | None:
+        return self._find_existing_assistant(assistant_key)
+
+    def _find_existing_assistant(self, assistant_key: str):
         assistants = self.client.assistants_list()
         return next(
-            (assistant.id for assistant in assistants if assistant.name == self.assistant_name),
+            (
+                assistant.id
+                for assistant in assistants
+                if assistant.name == assistant_key or assistant.id == assistant_key
+            ),
             None,
         )
 

@@ -19,7 +19,7 @@ def main():
     logger.info(f"Building {assistant_name}")
 
     client = OpenAIClient(build_openai_client())
-    service = AssistantService(client, get_prompt())
+    service = AssistantService(client, prompt=get_prompt())
 
     logger.info("Removing existing assistant and category files")
     service.delete_assistant()

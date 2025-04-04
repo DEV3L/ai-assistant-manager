@@ -11,7 +11,7 @@ class TestAssistantService(TestCase):
 
     def setUp(self):
         self.mock_client = MagicMock()
-        self.service = AssistantService(self.mock_client, self.prompt)
+        self.service = AssistantService(self.mock_client, prompt=self.prompt)
 
     def test_get_assistant_id_exists(self):
         mock_assistant = MagicMock(id="456")
@@ -31,9 +31,21 @@ class TestAssistantService(TestCase):
 
         assert result == self.mock_client.assistants_create.return_value.id
 
+    def test_get_assistant_by_key_exists(self):
+        mock_assistant_name = ENV_VARIABLES.assistant_name
+        mock_assistant = MagicMock(id="456")
+        mock_assistant.name = mock_assistant_name
+        self.mock_client.assistants_list = MagicMock(return_value=[mock_assistant])
+
+        result_by_id = self.service.get_assistant_by_key("456")
+        result_by_name = self.service.get_assistant_by_key(mock_assistant_name)
+
+        assert result_by_id == "456"
+        assert result_by_name == "456"
+
     def test_get_vector_store_ids_exists(self):
         self.mock_client.vector_stores_list = MagicMock(
-            return_value=[MagicMock(filename=f"{ENV_VARIABLES.data_file_prefix} vector store", id="654")]
+            return_value=[MagicMock(filename=f"{ENV_VARIABLES.assistant_name} vector store", id="654")]
         )
 
         result = self.service.get_vector_store_ids()
@@ -88,7 +100,7 @@ class TestAssistantService(TestCase):
 
     def test_get_retrieval_file_ids_exists(self):
         self.mock_client.files_list = MagicMock(
-            return_value=[MagicMock(filename=f"{ENV_VARIABLES.data_file_prefix} blogs.json", id="456")]
+            return_value=[MagicMock(filename=f"{ENV_VARIABLES.assistant_name} blogs.json", id="456")]
         )
 
         result = self.service.get_retrieval_file_ids()

@@ -26,7 +26,9 @@ def main():
     tools_from_file.extend(RETRIEVAL_TOOLS)
 
     client = OpenAIClient(build_openai_client())
-    service = AssistantService(client, get_prompt(prompt_path=SAMPLE_PROMPT_PATH_WITH_TOOLS), tools=tools_from_file)
+    service = AssistantService(
+        client, prompt=get_prompt(prompt_path=SAMPLE_PROMPT_PATH_WITH_TOOLS), tools=tools_from_file
+    )
 
     logger.info("Removing existing assistant and category files")
     service.delete_assistant()
