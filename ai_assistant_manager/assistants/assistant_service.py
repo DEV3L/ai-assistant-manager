@@ -2,6 +2,8 @@ import os
 
 from loguru import logger
 
+from ai_assistant_manager.chats.chat import Chat
+
 from ..clients.openai_api import OpenAIClient
 from ..env_variables import ENV_VARIABLES
 
@@ -41,6 +43,27 @@ class AssistantService:
 
     def get_assistant_by_key(self, assistant_key: str) -> str | None:
         return self._find_existing_assistant(assistant_key)
+
+    def build_assistant(
+        self, assistant_name: str, prompt: str, vector_store_ids: list[str] = [], tools: list[dict] = RETRIEVAL_TOOLS
+    ):
+        logger.info(f"Creating new assistant {assistant_name}")
+        return self.client.assistants_create(
+            assistant_name,
+            prompt,
+            vector_store_ids,
+            tools=tools,
+        ).id
+
+    def start_chat(self, assistant_id: str, thread_id: str | None) -> Chat:
+        chat = Chat(
+            self.client,
+            assistant_id,
+            thread_id=thread_id,
+        )
+        chat.start()
+
+        return chat
 
     def _find_existing_assistant(self, assistant_key: str):
         assistants = self.client.assistants_list()
@@ -141,7 +164,7 @@ class AssistantService:
     def delete_assistant(self):
         logger.info(f"Removing existing {self.assistant_name} and retrieval files")
 
-        if assistant_id := self._find_existing_assistant():
+        if assistant_id := self._find_existing_assistant(self.assistant_name):
             self.client.assistants_delete(assistant_id)
         if vector_store_ids := self._find_existing_vector_stores():
             for vector_store_id in vector_store_ids:

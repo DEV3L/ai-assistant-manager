@@ -43,6 +43,21 @@ class TestAssistantService(TestCase):
         assert result_by_id == "456"
         assert result_by_name == "456"
 
+    def test_build_assistant(self):
+        self.mock_client.assistants_list = MagicMock(return_value=[])
+
+        result = self.service.build_assistant("assistant-name", "prompt", [], [])
+
+        assert result == self.mock_client.assistants_create.return_value.id
+
+    def test_start_chat(self):
+        assistant_id = "abc"
+        thread_id = "123"
+        chat = self.service.start_chat(assistant_id, thread_id)
+
+        assert chat.assistant_id == assistant_id
+        assert chat.thread_id == thread_id
+
     def test_get_vector_store_ids_exists(self):
         self.mock_client.vector_stores_list = MagicMock(
             return_value=[MagicMock(filename=f"{ENV_VARIABLES.assistant_name} vector store", id="654")]
