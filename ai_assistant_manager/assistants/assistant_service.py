@@ -3,6 +3,7 @@ import os
 from loguru import logger
 
 from ai_assistant_manager.chats.chat import Chat
+from ai_assistant_manager.named_bytes import NamedBytesIO
 
 from ..clients.openai_api import OpenAIClient
 from ..env_variables import ENV_VARIABLES
@@ -65,7 +66,7 @@ class AssistantService:
 
         return chat
 
-    def add_file_contents_to_files(self, file_contents: str):
+    def add_file_contents_to_files(self, file_contents: NamedBytesIO):
         return self.client.files_create(file_contents, "assistants").id
 
     def _find_existing_assistant(self, assistant_key: str):
@@ -99,14 +100,13 @@ class AssistantService:
             if vector_store.name and vector_store.name.startswith(self.data_file_prefix)
         ]
 
-    def create_vector_stores(self, *, file_ids: list[str] = None):
+    def create_vector_stores(self, *, vector_store_name: str = None, file_ids: list[str] = None):
         logger.info("Creating new vector stores")
+
         retrieval_file_ids = file_ids or self.get_retrieval_file_ids()
-        return [
-            self._validate_vector_stores(
-                self.client.vector_stores_create(f"{self.data_file_prefix} vector store", retrieval_file_ids)
-            )
-        ]
+        vector_store_name = vector_store_name or f"{self.data_file_prefix} vector store"
+
+        return [self._validate_vector_stores(self.client.vector_stores_create(vector_store_name, retrieval_file_ids))]
 
     def _validate_vector_stores(self, vector_store_id: str):
         try:
