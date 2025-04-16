@@ -58,6 +58,18 @@ class TestAssistantService(TestCase):
         assert chat.assistant_id == assistant_id
         assert chat.thread_id == thread_id
 
+    def test_add_file_contents_to_files(self):
+        expected_file_id = "uploaded-file-id"
+        files_contents = b"some file contents"
+
+        mock_created_file = MagicMock()
+        mock_created_file.id = expected_file_id
+        self.mock_client.files_create.return_value = mock_created_file
+
+        result_by_id = self.service.add_file_contents_to_files(files_contents)
+
+        assert result_by_id == expected_file_id
+
     def test_get_vector_store_ids_exists(self):
         self.mock_client.vector_stores_list = MagicMock(
             return_value=[MagicMock(filename=f"{ENV_VARIABLES.assistant_name} vector store", id="654")]
@@ -78,6 +90,32 @@ class TestAssistantService(TestCase):
         self.service.get_retrieval_file_ids = lambda: expected_file_ids
 
         vector_store_ids = self.service.create_vector_stores()
+
+        assert vector_store_ids == [expected_vector_store_id]
+        self.mock_client.vector_stores_create.assert_called_with(mock.ANY, expected_file_ids)
+        self.mock_client.vector_stores_files.assert_called_with(expected_vector_store_id)
+
+    def test_create_vector_stores_with_files(self):
+        expected_vector_store_id = "vector_store_id"
+        expected_file_ids = ["file1_id", "file2_id"]
+        self.mock_client.vector_stores_create.return_value = expected_vector_store_id
+        self.mock_client.vector_stores_files.return_value = [MagicMock(status="completed")]
+
+        self.service.get_retrieval_file_ids = lambda: expected_file_ids
+
+        vector_store_ids = self.service.create_vector_stores()
+
+        assert vector_store_ids == [expected_vector_store_id]
+        self.mock_client.vector_stores_create.assert_called_with(mock.ANY, expected_file_ids)
+        self.mock_client.vector_stores_files.assert_called_with(expected_vector_store_id)
+
+    def test_create_vector_stores_with_file_ids(self):
+        expected_vector_store_id = "vector_store_id"
+        expected_file_ids = ["file1_id", "file2_id"]
+        self.mock_client.vector_stores_create.return_value = expected_vector_store_id
+        self.mock_client.vector_stores_files.return_value = [MagicMock(status="completed")]
+
+        vector_store_ids = self.service.create_vector_stores(file_ids=expected_file_ids)
 
         assert vector_store_ids == [expected_vector_store_id]
         self.mock_client.vector_stores_create.assert_called_with(mock.ANY, expected_file_ids)

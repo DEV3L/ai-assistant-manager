@@ -65,6 +65,9 @@ class AssistantService:
 
         return chat
 
+    def add_file_contents_to_files(self, file_contents: str):
+        return self.client.files_create(file_contents, "assistants").id
+
     def _find_existing_assistant(self, assistant_key: str):
         assistants = self.client.assistants_list()
         return next(
@@ -96,9 +99,9 @@ class AssistantService:
             if vector_store.name and vector_store.name.startswith(self.data_file_prefix)
         ]
 
-    def create_vector_stores(self):
+    def create_vector_stores(self, *, file_ids: list[str] = None):
         logger.info("Creating new vector stores")
-        retrieval_file_ids = self.get_retrieval_file_ids()
+        retrieval_file_ids = file_ids or self.get_retrieval_file_ids()
         return [
             self._validate_vector_stores(
                 self.client.vector_stores_create(f"{self.data_file_prefix} vector store", retrieval_file_ids)
