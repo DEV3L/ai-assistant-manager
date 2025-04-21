@@ -6,6 +6,8 @@ import pytest
 from openai.types.beta.threads.text import Text
 from openai.types.beta.threads.text_content_block import TextContentBlock
 
+from ai_assistant_manager.chats.chat_response import MessageWithAnnotations
+
 from .chat import ActionData, Chat, RequiresActionException
 from .chat_response import ChatResponse
 
@@ -46,14 +48,16 @@ class TestChat(TestCase):
         self.mock_client.messages_list.return_value.data = [{"content": "Hello"}]
         self.chat.thread_id = "thread_id"
         self.chat.run_thread = MagicMock(return_value=10)
-        self.chat.last_message = MagicMock(return_value="Hello")
+        self.chat.last_message_with_annotations = MagicMock(
+            return_value=MessageWithAnnotations(message="Hello", annotation_files=[])
+        )
 
         result = self.chat.send_user_message("Test message")
 
-        assert result == ChatResponse(message="Hello", token_count=10)
+        assert result == ChatResponse(message="Hello", annotation_files=[], token_count=10)
         self.mock_client.messages_create.assert_called_once_with("thread_id", "Test message", "user")
         self.chat.run_thread.assert_called_once()
-        self.chat.last_message.assert_called_once()
+        self.chat.last_message_with_annotations.assert_called_once()
 
     def test_submit_tool_outputs(self):
         self.mock_client.messages_create.return_value = None
@@ -64,7 +68,7 @@ class TestChat(TestCase):
         self.mock_client.runs_retrieve.return_value = MagicMock(status="completed", usage=MagicMock(total_tokens=10))
         result = self.chat.submit_tool_outputs("run_id", "tool_call_id", "response")
 
-        assert result == ChatResponse(message="Hello", token_count=10)
+        assert result == ChatResponse(message="Hello", annotation_files=[], token_count=10)
         self.mock_client.submit_tool_outputs_to_run.assert_called_once_with(
             "run_id", "tool_call_id", "thread_id", "response"
         )
@@ -166,6 +170,37 @@ class TestChat(TestCase):
         self.chat._get_messages = MagicMock(return_value=[MagicMock(content=[not_text])])
         with pytest.raises(RuntimeError, match="No text content found in the messages"):
             self.chat.last_message()
+
+    def test_last_message_with_annotations(self):
+        self.mock_client.files_get.return_value = MagicMock(filename="A File Name")
+        file_citation = MagicMock(file_id="a_file_id", text="【4:0†source】")
+        file_citation.text = "【4:0†source】"
+        self.chat._get_messages = MagicMock(
+            return_value=[
+                MagicMock(
+                    content=[
+                        MagicMock(
+                            text=MagicMock(
+                                annotations=[MagicMock(text="【4:0†source】", file_citation=file_citation)],
+                                value="Hello, world!【4:0†source】",
+                            ),
+                            type="text",
+                        )
+                    ]
+                )
+            ]
+        )
+
+        result = self.chat.last_message_with_annotations()
+        assert result.message == "Hello, world![*1]"
+        assert result.annotation_files == ["A File Name"]
+
+    def test_last_message_with_annotations_with_no_text_content(self):
+        not_text = MagicMock()
+        delattr(not_text, "text")
+        self.chat._get_messages = MagicMock(return_value=[MagicMock(content=[not_text])])
+        with pytest.raises(RuntimeError, match="No text content found in the messages"):
+            self.chat.last_message_with_annotations()
 
     def test_remove_tool_call_from_message(self):
         assert self.chat.remove_tool_call_from_message("tc! call") == " call"

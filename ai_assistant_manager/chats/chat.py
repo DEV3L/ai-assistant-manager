@@ -4,9 +4,11 @@ from dataclasses import dataclass
 
 from loguru import logger
 
+from ai_assistant_manager.chats.chat_response import MessageWithAnnotations
+
 from ..clients.openai_api import OpenAIClient
 from ..timer.timer import timer
-from .chat_response import ChatResponse
+from .chat_response import Annotation, ChatResponse
 
 TOOL_CALL_PREFIX = "tc!"
 
@@ -32,13 +34,16 @@ class Chat:
             "user",
         )
         tokens = self.run_thread(self.should_force_tool_call(message))
-        return ChatResponse(message=self.last_message(), token_count=tokens)
+        last_message = self.last_message_with_annotations()
+        return ChatResponse(
+            message=last_message.message, annotation_files=last_message.annotation_files, token_count=tokens
+        )
 
     @timer("Submit Tool Outputs")
     def submit_tool_outputs(self, run_id: str, tool_call_id: str, response: str) -> int:
         self.client.submit_tool_outputs_to_run(run_id, tool_call_id, self.thread_id, response)
         tokens = self._wait_for_run_to_complete(run_id)
-        return ChatResponse(message=self.last_message(), token_count=tokens)
+        return ChatResponse(message=self.last_message(), annotation_files=[], token_count=tokens)
 
     @timer("Run Thread")
     def run_thread(self, should_force_tool_call: bool = False) -> int:
@@ -74,10 +79,28 @@ class Chat:
 
     def last_message(self) -> str:
         message_content = self._get_messages()[0].content[0]
-        if hasattr(message_content, "text"):
-            return message_content.text.value
+        if not hasattr(message_content, "text"):
+            raise RuntimeError("No text content found in the messages")
 
-        raise RuntimeError("No text content found in the messages")
+        return message_content.text.value
+
+    def last_message_with_annotations(self) -> MessageWithAnnotations:
+        message_content = self._get_messages()[0].content[0]
+
+        if not hasattr(message_content, "text"):
+            raise RuntimeError("No text content found in the messages")
+
+        annotations: list[Annotation] = [
+            Annotation(file_id=annotation.file_citation.file_id, text=annotation.text)
+            for annotation in message_content.text.annotations
+        ]
+        file_names = [self.client.files_get(annotation.file_id).filename for annotation in annotations]
+
+        text_with_annotations = message_content.text.value
+        for index, annotation in enumerate(annotations):
+            text_with_annotations = text_with_annotations.replace(annotation.text, f"[*{index + 1}]")
+
+        return MessageWithAnnotations(message=text_with_annotations, annotation_files=file_names)
 
     def _get_messages(self):
         return self.client.messages_list(self.thread_id).data
