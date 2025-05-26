@@ -96,7 +96,7 @@ For more details, visit the [PyPI project page](https://pypi.org/project/ai-assi
 Configure the following environment variables in your `.env` file:
 
 - `OPENAI_API_KEY`: Your OpenAI API key.
-- `OPENAI_MODEL`: The model to use (default: `gpt-4o-2024-08-06`).
+- `OPENAI_MODEL`: The model to use (default: `gpt-4o`).
 - `ASSISTANT_DESCRIPTION`: Description of the assistant (default: `AI Assistant Manager`).
 - `ASSISTANT_NAME`: Name of the assistant (default: `AI Assistant Manager`).
 - `BIN_DIR`: Directory for binaries (default: `bin`).
